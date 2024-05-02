@@ -1,12 +1,11 @@
-import allure
 import pytest
 from appium.options.android import UiAutomator2Options
 from selene import browser
 from dotenv import load_dotenv
 import os
-from appium import webdriver
-
 import utils.allure
+from appium import webdriver
+import allure
 
 load_dotenv()
 user_name = os.getenv('LOGIN')
@@ -38,26 +37,25 @@ def mobile_management():
     })
 
     browser.config.driver_remote_url = url
+
     browser.config.driver_options = options
 
     browser.config.timeout = float(os.getenv('timeout', '10.0'))
 
-    yield
-    allure.attach(
-        browser.driver.get_screenshot_as_png(),
-        name='screenshot',
-        attachment_type=allure.attachment_type.PNG,
-    )
+    browser.config.driver = webdriver.Remote(url, options=options)
 
-    allure.attach(
-        browser.driver.page_source,
-        name='screen xml dump',
-        attachment_type=allure.attachment_type.XML,
-    )
+    yield
 
     session_id = browser.driver.session_id
 
+    with allure.step('attach xml'):
+        utils.allure.attach_xml(browser)
+
+    with allure.step('attach screen'):
+        utils.allure.attach_screen(browser)
+
+    with allure.step('attach video'):
+        utils.allure.attach_bstack_video(session_id)
+
     with allure.step('tear down app session'):
         browser.quit()
-
-    utils.allure.attach_bstack_video(session_id)
