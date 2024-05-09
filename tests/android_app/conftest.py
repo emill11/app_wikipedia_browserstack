@@ -1,16 +1,10 @@
 import pytest
 from appium.options.android import UiAutomator2Options
 from selene import browser
-from dotenv import load_dotenv
-import os
+from config import user_name, access_key, url, time_out
 import utils.allure
 from appium import webdriver
 import allure
-
-load_dotenv()
-user_name = os.getenv('LOGIN')
-access_key = os.getenv('PASSWORD')
-url = os.getenv('URL')
 
 
 @pytest.fixture(scope='function', autouse=True)
@@ -40,7 +34,7 @@ def mobile_management():
 
     browser.config.driver_options = options
 
-    browser.config.timeout = float(os.getenv('timeout', '10.0'))
+    browser.config.timeout = time_out
 
     browser.config.driver = webdriver.Remote(url, options=options)
 
